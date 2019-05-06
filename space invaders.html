@@ -1,0 +1,940 @@
+<meta charset="UTF-8">
+
+<canvas width="800" height="500"></canvas>
+
+<script>  
+    
+    
+    
+//MAIN ====================================================================================================================  
+    var tela = document.querySelector('canvas');     //pegar o canvas
+    var pincel = tela.getContext('2d');              //pegar o contexto 2d do canvas
+
+    var taxa = 10;              // valor da taxa de incremento
+    
+    var estaNaFase1 = false;        // verificar em que fase está
+    var estaNaFase2 = false;
+    var estaNaFaseFinal = false;
+    
+    var temp = 0;
+    var incrementoDificuldade = 10;
+    var alienDireita = true;
+    
+    var faseCompletada = false;
+    
+    var color = ['blue','green','yellow','orange','red'];
+    
+    var contadorAlienFase1 = 0;
+    var contadorAlienFase2 = 0;
+    var contadorAlienFaseFinal = 0;
+    
+    var esquerda = 37;      // código das teclas do teclado
+    var cima = 38;
+    var direita = 39;       
+    var baixo = 40;
+    var espaco = 32;        
+    var start = 13;         
+    
+    var xNave = 20;       // variaveis da nave
+    var yNave = 490;           
+    var larguraNave = 50;   
+    var alturaNave = 10; 
+    
+    var xBala = xNave + 20;   // variaveis da bala  
+    var yBala = yNave;     
+    var larguraBala = 10;  
+    var alturaBala = 10;   
+    
+    var balaAtirada = false;      // verifica se a bala foi atirada
+    var balaAcertada = false;     // verifica se a bala acertou algum inimigo
+    
+    var pontos = 0;  //pontuação do jogo
+    
+    var xSeta = 320;    //variaveis de posição da setinha da tela inicial do jogo
+    var ySeta = 330;
+    
+    var iniciarJogo = false;    // verifica se o jogo foi iniciado, ou seja, jogador apertou start na tela inicial
+    
+    var perdeu = false;     // verifica se o jogador foi atingido
+    
+    var intervalIDTelaInicial;   //todas as variaveis de interval do setInterval
+    var intervalIDDesenharBala;
+    var intervalIDCriarExplosao;
+    var intervalIDComecaJgo;
+    
+    var intervalIDMovimentaAlienTipo1;
+    var intervalIDMovimentaAlienTipo2;
+    var intervalIDMovimentaBoss;
+    
+    var xExplosao;                  //variaveis do efeito da explosão
+    var yExplosao;
+    var incrementoExplosao = 1;
+    
+    intervalIDTelaInicial = setInterval(MostrarTelaInicial, 10);        //mostra a tela inicial
+    document.onkeydown = LerDoTecladoTelaInicial;   
+    
+//MAIN =======================================================================================================================
+    
+    
+    
+    
+    
+
+//TELA INICIAL ========================================================================================================
+    
+    function desenharTelaInicial()
+    {
+        pincel.fillStyle = 'black';
+        pincel.beginPath();
+        //S
+        pincel.fillRect(50,20,60,20);
+        pincel.fillRect(50,20,20,60);
+        pincel.fillRect(50,70,60,20);
+        pincel.fillRect(90,70,20,60);
+        pincel.fillRect(50,130,60,20);
+        //P
+        pincel.fillRect(130,20,60,20);
+        pincel.fillRect(130,20,20,130);
+        pincel.fillRect(130,80,60,20);
+        pincel.fillRect(170,20,20,60);
+        //A
+        pincel.fillRect(210,20,60,20);
+        pincel.fillRect(210,20,20,130);
+        pincel.fillRect(250,20,20,130);
+        pincel.fillRect(210,80,60,20);
+        //C
+        pincel.fillRect(290,20,60,20);
+        pincel.fillRect(290,20,20,130);
+        pincel.fillRect(290,130,60,20);
+        //E
+        pincel.fillRect(370,20,60,20);
+        pincel.fillRect(370,20,20,130);
+        pincel.fillRect(370,80,60,20);
+        pincel.fillRect(370,130,60,20);
+        //I
+        pincel.fillRect(70,170,20,130);
+        pincel.fillRect(50,170,60,20);
+        pincel.fillRect(50,280,60,20);
+        //N
+        pincel.fillRect(130,170,20,130);
+        pincel.fillRect(150,200,10,10);
+        pincel.fillRect(160,210,10,10);
+        pincel.fillRect(170,170,20,130);
+        //V
+        pincel.fillRect(210,170,20,110);
+        pincel.fillRect(230,270,20,30);
+        pincel.fillRect(250,170,20,110);
+        //A
+        pincel.fillRect(290,170,60,20);
+        pincel.fillRect(290,170,20,130);
+        pincel.fillRect(330,170,20,130);
+        pincel.fillRect(290,230,60,20);
+        //D
+        pincel.fillRect(370,170,20,130);
+        pincel.fillRect(390,270,20,20);
+        pincel.fillRect(390,180,20,20);
+        pincel.fillRect(410,190,20,90);
+        //E
+        pincel.fillRect(450,170,60,20);
+        pincel.fillRect(450,170,20,130);
+        pincel.fillRect(450,230,60,20);
+        pincel.fillRect(450,280,60,20);
+        //R
+        //S
+        
+        //Start
+        EscreverTexto("START", 380, 350);
+        EscreverTexto("CRÉDITOS", 400, 400);
+        EscreverTexto("Desenvolvido por Leônio Ranulfo 2018", 380, 450);
+        EscreverTexto("Use as Setas para movimentar. Space bar para Atirar/Aceitar", 380, 480);
+        pincel.fill();
+    }
+    
+    function desenharSeta()
+    {
+        pincel.fillStyle = 'black';
+        pincel.beginPath();
+        pincel.fillRect(xSeta,ySeta,5,25);
+        pincel.fillRect(xSeta+5,ySeta+5,5,15);
+        pincel.fillRect(xSeta+10,ySeta+10,5,5);
+    }
+    
+    function MostrarTelaInicial()
+    {
+        LimparTela();
+        desenharTelaInicial();
+        desenharSeta();
+    }
+    
+    function LerDoTecladoTelaInicial(evento) 
+    {
+        if (evento.keyCode == cima) 
+        {
+            //seta posicionada no start
+            ySeta = 330;
+        }
+        else if (evento.keyCode == baixo)
+        {
+            //seta posicionada no créditos
+            ySeta = 380;
+        }
+        else if (evento.keyCode == espaco)
+        {
+            if (ySeta == 330)
+            {
+                //iniciar fase 1
+                estaNaFase1 = true;
+                clearInterval(intervalIDTelaInicial);
+                intervalIDComecaJgo = setInterval(mostrarFase1, 10);      //começando o jogo
+                document.onkeydown = LerDoTecladoTelaJogo; 
+            }
+            else if (ySeta == 380)
+            {
+                alert("Desenvolvido por Leônio Ranulfo. 100% Javascript!")
+            }
+        }
+        
+    }
+    
+//TELA INICIAL ===========================================================================================================
+    
+    
+    
+    
+    
+    
+//FASE 1 ==================================================================================================================
+    //vai guardar nessa ordem: posição x, posição y, largura, altura, cor, vida
+    //tamanho maximo do alien 1 -> largura = 45 , altura = 35
+    //1ª linha
+    var alienTipo1Linha1Num1 = [190,50,20,20,4,1];
+    var alienTipo1Linha1Num2 = [260,50,20,20,4,1];
+    var alienTipo1Linha1Num3 = [330,50,20,20,4,1];
+    var alienTipo1Linha1Num4 = [400,50,20,20,4,1];
+    var alienTipo1Linha1Num5 = [470,50,20,20,4,1];
+    //2ª linha
+    var alienTipo1Linha2Num1 = [190,100,20,20,4,1];
+    var alienTipo1Linha2Num2 = [260,100,20,20,4,1];
+    var alienTipo1Linha2Num3 = [330,100,20,20,4,1];
+    var alienTipo1Linha2Num4 = [400,100,20,20,4,1];
+    var alienTipo1Linha2Num5 = [470,100,20,20,4,1];
+    
+    function DesenharFase1()
+    {
+        //1ª linha
+        DesenharAlienTipo1(alienTipo1Linha1Num1);
+        DesenharAlienTipo1(alienTipo1Linha1Num2);
+        DesenharAlienTipo1(alienTipo1Linha1Num3);
+        DesenharAlienTipo1(alienTipo1Linha1Num4);
+        DesenharAlienTipo1(alienTipo1Linha1Num5);
+        //2ª linha
+        DesenharAlienTipo1(alienTipo1Linha2Num1);
+        DesenharAlienTipo1(alienTipo1Linha2Num2);
+        DesenharAlienTipo1(alienTipo1Linha2Num3);
+        DesenharAlienTipo1(alienTipo1Linha2Num4);
+        DesenharAlienTipo1(alienTipo1Linha2Num5);
+    }
+    
+    function DesenharAlienTipo1(alien)
+    {
+        if (alien[5] > 0)
+        {
+            pincel.fillStyle = color[alien[4]];
+            pincel.beginPath();
+            //corpo
+            pincel.fillRect(alien[0],alien[1],alien[2],alien[3]);
+            //patinha frente esquerda
+            pincel.fillRect(alien[0]-5,alien[1]+10,alien[2]-15,alien[3]-15);
+            pincel.fillRect(alien[0]-10,alien[1]+15,alien[2]-15,alien[3]-15);
+            //patinha frente direita
+            pincel.fillRect(alien[0]+20,alien[1]+10,alien[2]-15,alien[3]-15);
+            pincel.fillRect(alien[0]+25,alien[1]+15,alien[2]-15,alien[3]-15);
+            //patinha tras esquerda
+            pincel.fillRect(alien[0]-5,alien[1]-5,alien[2]-15,alien[3]-15);
+            pincel.fillRect(alien[0]-10,alien[1]-10,alien[2]-15,alien[3]-15);
+            //patinha tras direita
+            pincel.fillRect(alien[0]+20,alien[1]-5,alien[2]-15,alien[3]-15);
+            pincel.fillRect(alien[0]+25,alien[1]-10,alien[2]-15,alien[3]-15);
+            //olhos
+            pincel.fillStyle = 'white';
+            pincel.fillRect(alien[0]+5,alien[1]+5,alien[2]-18,alien[3]-10);
+            pincel.fillRect(alien[0]+14,alien[1]+5,alien[2]-18,alien[3]-10);
+            pincel.fill();
+        }
+    }
+    
+    function mostrarFase1() 
+    {
+        temp++;
+        if (contadorAlienFase1 < 10 && perdeu == false)
+        {
+            LimparTela();
+            DesenharNave();
+            EscreverTexto("Pontos: " + pontos, 720, 30);
+            DesenharFase1();
+            if (temp % incrementoDificuldade == 0)
+            {
+                movimentaLinhaAliensTipo1(alienTipo1Linha1Num1,alienTipo1Linha1Num2,alienTipo1Linha1Num3,alienTipo1Linha1Num4
+                ,alienTipo1Linha1Num5,alienTipo1Linha2Num1,alienTipo1Linha2Num2,alienTipo1Linha2Num3,alienTipo1Linha2Num4
+                ,alienTipo1Linha2Num5); 
+            }
+        }
+        else if (perdeu)
+        {
+            LimparTela();
+            EscreverTexto("GAME OVER",370,170);
+            EscreverTexto("Pressione F5 para voltar para tela inicial!",360,280);      
+        }
+        else 
+        {
+            LimparTela();
+            faseCompletada = true;
+            EscreverTexto("FASE 1 COMPLETADA!!",370,170);
+            EscreverTexto("Pressione ENTER para avançar de fase!",360,280);
+        }
+    }
+    
+    function movimentaLinhaAliensTipo1(alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10)
+    {
+        var aliens = [alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10];
+        var alienDaPontaEsquerdaAtual = 0;
+        var alienDaPontaDireitaAtual = 9;
+        var darBreak = false;
+        
+        for(var i = 0 ; i < 10 ; i++)
+        {
+            if (aliens[i][5] == 0 && aliens[i+5][5] == 0)
+            {
+                alienDaPontaEsquerdaAtual++;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        darBreak = false;
+        for(var i = 9 ; i >= 0 ; i--)
+        {
+            if (aliens[i][5] == 0 && aliens[i-5][5] == 0)
+            {
+                alienDaPontaDireitaAtual--;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        if (alienDireita)
+        {
+            somaAlienTipo1(alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10,5,0);
+        }
+        else 
+        {
+            subtraiAlienTipo1(alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10,5,0);
+        }
+
+        if (aliens[alienDaPontaDireitaAtual][0] + 25 >= 800 && alienDireita)
+        {
+            alienDireita = false;
+            somaAlienTipo1(alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10,20,1);
+        }
+        else if (aliens[alienDaPontaEsquerdaAtual][0] - 15 <= 0 && alienDireita == false)
+        {
+            alienDireita = true;
+            somaAlienTipo1(alien1,alien2,alien3,alien4,alien5,alien6,alien7,alien8,alien9,alien10,20,1);
+        }
+        
+        if (aliens[alienDaPontaDireitaAtual][1] >= yNave - 10 || aliens[alienDaPontaEsquerdaAtual][1] >= yNave - 10)
+            perdeu = true;
+    }
+    
+     function somaAlienTipo1(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,valor,pos)
+    {
+        n1[pos] += valor;
+        n2[pos] += valor;
+        n3[pos] += valor;
+        n4[pos] += valor;
+        n5[pos] += valor;
+        n6[pos] += valor;
+        n7[pos] += valor;
+        n8[pos] += valor;
+        n9[pos] += valor;
+        n10[pos] += valor;
+    }
+    
+    function subtraiAlienTipo1(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,valor,pos)
+    {
+        n1[pos] -= valor;
+        n2[pos] -= valor;
+        n3[pos] -= valor;
+        n4[pos] -= valor;
+        n5[pos] -= valor;
+        n6[pos] -= valor;
+        n7[pos] -= valor;
+        n8[pos] -= valor;
+        n9[pos] -= valor;
+        n10[pos] -= valor;
+    }
+    
+//FASE 1 =====================================================================================================================    
+    
+    
+    
+    
+    
+    
+//FASE 2 ===============================================================================================================  
+    //vai guardar nessa ordem: posição x, posição y, largura, altura, cor, vida
+    //1ª linha
+    var alienTipo2Linha1Num1 = [190,50,20,20,3,2];
+    var alienTipo2Linha1Num2 = [290,50,20,20,3,2];
+    var alienTipo2Linha1Num3 = [390,50,20,20,3,2];
+    var alienTipo2Linha1Num4 = [490,50,20,20,3,2];
+    var alienTipo2Linha1Num5 = [590,50,20,20,3,2];
+    
+    function DesenharFase2()
+    {
+        //1ª linha
+        DesenharAlienTipo2(alienTipo2Linha1Num1);
+        DesenharAlienTipo2(alienTipo2Linha1Num2);
+        DesenharAlienTipo2(alienTipo2Linha1Num3);
+        DesenharAlienTipo2(alienTipo2Linha1Num4);
+        DesenharAlienTipo2(alienTipo2Linha1Num5);
+    }
+    
+    function DesenharAlienTipo2(alien)
+    {
+        if (alien[5] > 0)
+        {
+            pincel.fillStyle = color[alien[4]];
+            pincel.beginPath();
+            //corpo
+            pincel.fillRect(alien[0],alien[1],alien[2]+40,alien[3]+10);
+            //antena esquerda
+            pincel.fillRect(alien[0]+10,alien[1]-10,alien[2]-10,alien[3]-10);
+            pincel.fillRect(alien[0],alien[1]-20,alien[2],alien[3]-10);
+            //antena direita
+            pincel.fillRect(alien[0]+40,alien[1]-10,alien[2]-10,alien[3]-10);
+            pincel.fillRect(alien[0]+40,alien[1]-20,alien[2],alien[3]-10);
+            //patinhas
+            pincel.fillRect(alien[0],alien[1]+30,alien[2]-10,alien[3]-10);
+            pincel.fillRect(alien[0]+20,alien[1]+30,alien[2]-10,alien[3]-10);
+            pincel.fillRect(alien[0]+30,alien[1]+30,alien[2]-10,alien[3]-10);
+            pincel.fillRect(alien[0]+50,alien[1]+30,alien[2]-10,alien[3]-10);
+            //olhos
+            pincel.fillStyle = 'white';
+            pincel.fillRect(alien[0]+15,alien[1]+10,alien[2]-15,alien[3]-12);
+            pincel.fillRect(alien[0]+40,alien[1]+10,alien[2]-15,alien[3]-12);
+            pincel.fill();
+        }
+    }
+    
+    function mostrarFase2() 
+    {
+        temp++;
+        if (contadorAlienFase2 < 5)
+        {
+            LimparTela();
+            DesenharNave();
+            EscreverTexto("Pontos: " + pontos, 720, 30);
+            DesenharFase2();
+            if (temp % incrementoDificuldade == 0)
+            {
+                movimentaLinhaAliensTipo2(alienTipo2Linha1Num1,alienTipo2Linha1Num2,alienTipo2Linha1Num3,alienTipo2Linha1Num4
+                ,alienTipo2Linha1Num5); 
+            }
+        }
+        else 
+        {
+            LimparTela();
+            faseCompletada = true;
+            EscreverTexto("FASE 2 COMPLETADA!!",370,250);
+            EscreverTexto("Pressione ENTER para avançar de fase!",360,280);
+        }
+    }
+    
+    function movimentaLinhaAliensTipo2(alien1,alien2,alien3,alien4,alien5)
+    {
+        var aliens = [alien1,alien2,alien3,alien4,alien5];
+        var alienDaPontaEsquerdaAtual = 0;
+        var alienDaPontaDireitaAtual = 4;
+        var darBreak = false;
+        
+        for(var i = 0 ; i < 5 ; i++)
+        {
+            if (aliens[i][5] == 0)
+            {
+                alienDaPontaEsquerdaAtual++;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        darBreak = false;
+        for(var i = 4 ; i >= 0 ; i--)
+        {
+            if (aliens[i][5] == 0)
+            {
+                alienDaPontaDireitaAtual--;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        if (alienDireita)
+        {
+            somaAlienTipo2(alien1,alien2,alien3,alien4,alien5,5,0);
+        }
+        else 
+        {
+            subtraiAlienTipo2(alien1,alien2,alien3,alien4,alien5,5,0);
+        }
+
+        if (aliens[alienDaPontaDireitaAtual][0] + 55 >= 800 && alienDireita)
+        {
+            alienDireita = false;
+            somaAlienTipo2(alien1,alien2,alien3,alien4,alien5,50,1);
+        }
+        else if (aliens[alienDaPontaEsquerdaAtual][0] <= 0 && alienDireita == false)
+        {
+            alienDireita = true;
+            somaAlienTipo2(alien1,alien2,alien3,alien4,alien5,50,1);
+        }
+        //alert(yNave.toString());
+        if (aliens[alienDaPontaDireitaAtual][1] <= yNave - 10 || aliens[alienDaPontaEsquerdaAtual][1] <= yNave - 10)
+            perdeu = true;
+    }
+   
+    function somaAlienTipo2(n1,n2,n3,n4,n5,valor,pos)
+    {
+        n1[pos] += valor;
+        n2[pos] += valor;
+        n3[pos] += valor;
+        n4[pos] += valor;
+        n5[pos] += valor;
+    }
+    
+    function subtraiAlienTipo2(n1,n2,n3,n4,n5,valor,pos)
+    {
+        n1[pos] -= valor;
+        n2[pos] -= valor;
+        n3[pos] -= valor;
+        n4[pos] -= valor;
+        n5[pos] -= valor;
+    }
+    
+//FASE 2 ================================================================================================================  
+    
+    
+    
+    
+    
+    
+    
+    
+//FASE FINAL ===============================================================================================================  
+    //vai guardar nessa ordem: posição x, posição y, largura, altura, cor, vida
+    //1ª linha
+    var Boss1Num1 = [120,50,20,20,0,5];
+    var Boss1Num2 = [480,50,20,20,0,5];
+    
+    function DesenharFaseFinal()
+    {
+        //1ª linha
+        DesenharBoss1(Boss1Num1);
+        DesenharBoss1(Boss1Num2);
+    }
+    
+    function DesenharBoss1(alien)
+    {
+        if (alien[5] > 0)
+        {
+            pincel.fillStyle = color[alien[4]];
+            pincel.beginPath();
+            //corpo
+            pincel.fillRect(alien[0],alien[1],alien[2]+120,alien[3]+50);
+            //braço esquerdo
+            pincel.fillRect(alien[0]-20,alien[1]+20,alien[2],alien[3]+50);
+            //braço direito
+            pincel.fillRect(alien[0]+140,alien[1]+20,alien[2],alien[3]+50);
+            //antena esquerda
+            pincel.fillRect(alien[0]+35,alien[1]-20,alien[2],alien[3]);
+            pincel.fillRect(alien[0]+15,alien[1]-40,alien[2],alien[3]);
+            //antena direita
+            pincel.fillRect(alien[0]+85,alien[1]-20,alien[2],alien[3]);
+            pincel.fillRect(alien[0]+105,alien[1]-40,alien[2],alien[3]);
+            //olhos
+            pincel.fillStyle = 'white';
+            pincel.fillRect(alien[0]+35,alien[1]+20,alien[2]-5,alien[3]-5);
+            pincel.fillRect(alien[0]+90,alien[1]+20,alien[2]-5,alien[3]-5);
+            pincel.fill();
+        }
+    }
+    
+    function mostrarFaseFinal() 
+    {
+        temp++;
+        if (contadorAlienFaseFinal < 2)
+        {
+            LimparTela();
+            DesenharNave();
+            EscreverTexto("Pontos: " + pontos, 720, 30);
+            DesenharFaseFinal();
+            if (temp % incrementoDificuldade == 0)
+            {
+                movimentaBoss(Boss1Num1,Boss1Num2); 
+            }
+        }
+        else 
+        {
+            LimparTela();
+            faseCompletada = true;
+            EscreverTexto("FASE FINAL COMPLETADA!!",370,250);
+            EscreverTexto("VOCÊ FINALIZOU O JOGO",360,280);   
+            EscreverTexto("Pontos: " + pontos, 360, 320);
+            EscreverTexto("Pressione F5 para voltar para tela inicial!",380,350);
+        }
+    }
+    
+    function movimentaBoss(boss1,boss2)
+    {
+        var bosses = [boss1,boss2];
+        var alienDaPontaEsquerdaAtual = 0;
+        var alienDaPontaDireitaAtual = 1;
+        var darBreak = false;
+        
+        for(var i = 0 ; i < 2 ; i++)
+        {
+            if (bosses[i][5] == 0)
+            {
+                alienDaPontaEsquerdaAtual++;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        darBreak = false;
+        for(var i = 1 ; i >= 0 ; i--)
+        {
+            if (bosses[i][5] == 0)
+            {
+                alienDaPontaDireitaAtual--;
+            }
+            else
+            {
+                darBreak = true;
+            }
+            
+            if (darBreak)
+                break;
+        }
+        
+        if (alienDireita)
+        {
+            somaBoss(boss1,boss2,5,0);
+        }
+        else 
+        {
+            subtraiBoss(boss1,boss2,5,0);
+        }
+
+        if (bosses[alienDaPontaDireitaAtual][0] + 155 >= 800 && alienDireita)
+        {
+            alienDireita = false;
+            somaBoss(boss1,boss2,20,1);
+        }
+        else if (bosses[alienDaPontaEsquerdaAtual][0] - 15 <= 0 && alienDireita == false)
+        {
+            alienDireita = true;
+            somaBoss(boss1,boss2,20,1);
+        }
+    }
+   
+    function somaBoss(n1,n2,valor,pos)
+    {
+        n1[pos] += valor;
+        n2[pos] += valor;
+    }
+    
+    function subtraiBoss(n1,n2,valor,pos)
+    {
+        n1[pos] -= valor;
+        n2[pos] -= valor;
+    }
+    
+//FASE FINAL ================================================================================================================ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+//funções auxiliares =================================================================================================
+    
+    function DesenharNave()
+    {
+        pincel.fillStyle = 'blue';
+        pincel.beginPath();
+        pincel.fillRect(xNave,yNave,larguraNave,alturaNave);
+        pincel.fillRect(xNave + 10,yNave-10,larguraNave - 20,alturaNave);
+        pincel.fillRect(xNave + 20,yNave-20,larguraNave - 40,alturaNave);
+        pincel.fill();
+    }
+    
+    function alienAcertado(alien)
+    {
+        if (estaNaFase1)
+        {
+            if(xBala >= alien[0] - 10 && xBala <= alien[0] + 25 && yBala <= alien[1] + 10 && yBala > alien[1] && alien[5] > 0)
+            {
+                //diminui a vida do alien
+                alien[5]--;
+                //atualiza a cor do alien
+                alien[4]++;
+                xExplosao = xBala;
+                yExplosao = yBala;
+                intervalIDCriarExplosao = setInterval(criarExplosao, 5);
+                balaAcertada = true;
+                if (alien[5] == 0)
+                {
+                    contadorAlienFase1++;
+                    pontos += 50;
+                    incrementoDificuldade -= 1;
+                }
+            }
+        }
+        else if (estaNaFase2)
+        {
+            if(xBala >= alien[0] && xBala <= alien[0] + 50 && yBala <= alien[1] + 40 && yBala > alien[1] + 30 && alien[5] > 0)
+            {
+                //diminui a vida do alien
+                alien[5]--;
+                //atualiza a cor do alien
+                alien[4]++;
+                xExplosao = xBala;
+                yExplosao = yBala;
+                intervalIDCriarExplosao = setInterval(criarExplosao, 5);
+                balaAcertada = true;
+                if (alien[5] == 0)
+                {
+                    contadorAlienFase2++;
+                    pontos += 100;
+                    incrementoDificuldade -= 2;
+                }
+            }
+        }
+        else if (estaNaFaseFinal)
+        {
+            if(xBala >= alien[0] - 20 && xBala <= alien[0] + 150 && yBala <= alien[1] + 80 && yBala > alien[1] + 70 && alien[5] > 0)
+            {
+                //diminui a vida do alien
+                alien[5]--;
+                //atualiza a cor do alien
+                alien[4]++;
+                xExplosao = xBala;
+                yExplosao = yBala;
+                intervalIDCriarExplosao = setInterval(criarExplosao, 5);
+                balaAcertada = true;
+                if (alien[5] == 0)
+                {
+                    contadorAlienFaseFinal++;
+                    pontos += 450;
+                    incrementoDificuldade -= 8;
+                }
+            }
+        }
+    }
+        
+    function acertouInimigo()
+    {
+        if (yBala >= 0 && balaAtirada == true )
+        {
+            if (estaNaFase1)
+            {
+                //linha 1
+                alienAcertado(alienTipo1Linha1Num1);
+                alienAcertado(alienTipo1Linha1Num2);
+                alienAcertado(alienTipo1Linha1Num3);
+                alienAcertado(alienTipo1Linha1Num4);
+                alienAcertado(alienTipo1Linha1Num5);
+                //linha 2
+                alienAcertado(alienTipo1Linha2Num1);
+                alienAcertado(alienTipo1Linha2Num2);
+                alienAcertado(alienTipo1Linha2Num3);
+                alienAcertado(alienTipo1Linha2Num4);
+                alienAcertado(alienTipo1Linha2Num5);
+            }
+            else if (estaNaFase2)
+            {
+                alienAcertado(alienTipo2Linha1Num1);
+                alienAcertado(alienTipo2Linha1Num2);
+                alienAcertado(alienTipo2Linha1Num3);
+                alienAcertado(alienTipo2Linha1Num4);
+                alienAcertado(alienTipo2Linha1Num5);
+            }
+            else if (estaNaFaseFinal)
+            {
+                alienAcertado(Boss1Num1);
+                alienAcertado(Boss1Num2);
+            }
+        }
+    }
+    
+    function DesenharBala()
+    {
+        if (balaAtirada)
+        {
+            pincel.fillStyle = 'blue';
+            pincel.beginPath();
+            pincel.fillRect(xBala,yBala,larguraBala,alturaBala);
+            pincel.fill();
+            yBala = yBala - 5;
+
+            //verificar se pontuou
+            acertouInimigo();        
+
+            //quando a bala atravessa o cenario
+            if (yBala < 0 || balaAcertada)
+            {
+                yBala = yNave;
+                xBala = xNave + 20;
+                balaAtirada = false;
+                balaAcertada = false;
+                clearInterval(intervalIDDesenharBala);
+            }
+        }
+    }
+        
+    function DesenharParticulaExplosao( x,  y)
+    {
+        pincel.fillStyle = 'blue';
+        pincel.beginPath();
+        pincel.fillRect(x,y,4,4);
+    }
+    
+    function criarExplosao()
+    {
+        //particula 1 esquerda superior
+        DesenharParticulaExplosao(xExplosao+incrementoExplosao,yExplosao-incrementoExplosao);
+        //particula 2 direita superior
+        DesenharParticulaExplosao(xExplosao+incrementoExplosao,yExplosao+incrementoExplosao);
+        //particula 3 esquerda inferior
+        DesenharParticulaExplosao(xExplosao-incrementoExplosao,yExplosao-incrementoExplosao);
+        //particula 4 direita inferior
+        DesenharParticulaExplosao(xExplosao-incrementoExplosao,yExplosao+incrementoExplosao);
+        incrementoExplosao++;
+        if (incrementoExplosao == 25)
+        {
+            clearInterval(intervalIDCriarExplosao);
+            incrementoExplosao = 1;
+        }
+        
+    }
+    
+    function LerDoTecladoTelaJogo(evento) 
+    {
+        if (evento.keyCode == esquerda && xNave >= taxa) 
+        {
+            //logica para ir para a esquerda respeitando o limite do canvas
+            xNave = xNave - taxa;  
+        }
+        else if (evento.keyCode == direita && xNave <= 740)
+        {
+            //logica para ir para a direita respeitando o limite do canvas
+            xNave = xNave + taxa;
+        }
+        else if (evento.keyCode == espaco)
+        {
+            //logica para atirar
+            if (balaAtirada == false)
+            {
+                balaAtirada = true;
+                xBala = xNave + 20;
+                yBala = yNave;
+                intervalIDDesenharBala = setInterval(DesenharBala, 8); 
+            }
+        } 
+        else if (evento.keyCode == start && faseCompletada)
+        {
+            faseCompletada = false;
+            //iniciar proxima fase
+            if (estaNaFase1)
+            {
+                incrementoDificuldade = 10;
+                alienDireita = true;
+                estaNaFase1 = false;
+                estaNaFase2 = true;
+                estaNaFaseFinal = false;
+                corAtual = 3;
+                clearInterval(intervalIDComecaJgo);
+                intervalIDComecaJgo = setInterval(mostrarFase2, 10);      //começando a fase 2
+                document.onkeydown = LerDoTecladoTelaJogo; 
+            }
+            else if (estaNaFase2)
+            {
+                incrementoDificuldade = 10;
+                alienDireita = true;
+                estaNaFase1 = false;
+                estaNaFase2 = false;
+                estaNaFaseFinal = true;
+                corAtual = 0;
+                clearInterval(intervalIDComecaJgo);
+                intervalIDComecaJgo = setInterval(mostrarFaseFinal, 10);      //começando a fase final
+                document.onkeydown = LerDoTecladoTelaJogo; 
+            } 
+        }
+    }
+   
+    function LimparTela() 
+    {
+        pincel.clearRect(0, 0, 800, 500);
+        pincel.fillStyle = 'lightgrey';
+        pincel.fillRect(0, 0, 800, 500);
+    }
+    
+    function EscreverTexto(texto,x,y)
+    {
+        pincel.font = "20px Comic Sans MS";
+        pincel.fillStyle = "black";
+        pincel.textAlign = "center";
+        pincel.fillText(texto, x, y); 
+    }
+    
+    
+//funções auxiliares =================================================================================================
+    
+    /*bugs
+     - explosões para quando terminar de fase
+     - aprimorar sistemas de pontos (incluir combos e tempo)
+     - fazer inimigos atacarem e gerar gameover quando precisar
+     - morrer por alien baterem na nave, alien2 e boss
+    */
+    
+    
+</script>
